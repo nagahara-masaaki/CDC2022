@@ -28,7 +28,8 @@ for kk = 1:max_iter_rank
     [UU,SS,VV] = svd(T);
     diag_tSS = s_sparse_operator(diag(SS),r);
     tSS = diag(diag_tSS);
-    Z = UU*tSS*VV';
+    % Z = UU*tSS*VV';
+    Z = UU*tSS*UU';
     residual = Z - [X1,In;In,Y1];
     U = U + residual;
     if norm(residual,inf) < EPS
