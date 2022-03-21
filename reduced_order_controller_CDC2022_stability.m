@@ -4,37 +4,18 @@
 %% Initialization
 clear;
 ops=sdpsettings;
-Fsolver='sdpt3';
-%Fsolver='sedumi';
-Fsolver='mosek';
 
 %% Syste matrices
-% Maciejowski, MPC, p.46
-A = [-1.93, 0, 0, 0;
-    0.394, -0.426, 0, 0;
-    0, 0, -0.63, 0;
-    0.82, -0.784, 0.413, -0.426];
-B = [1.274, 1.274;
-    0, 0;
-    1.34, -0.65;
-    0, 0];
-C = [0,1,0,0;
-    0,0,1,0;
-    0,0,0,1];
-[n,m] = size(B);
-[p,n] = size(C);
-D = zeros(p,m);
-
-%%%%%%%
 % COMPleib benchmark
-[A,B1,B2,C1,C2,D11,D12,D21]=COMPleib('AC4');	% n=4
-%[A,B1,B2,C1,C2,D11,D12,D21]=COMPleib('NN1');	% n=3
-%[A,B1,B2,C1,C2,D11,D12,D21]=COMPleib('NN12');	% n=6
-%[A,B1,B2,C1,C2,D11,D12,D21]=COMPleib('HE6');	% n=20
+system_model = 'AC4';
+%system_model = 'NN1';
+%system_model = 'NN12';
+%system_model = 'HE6';
+
+[A,B1,B2,C1,C2,D11,D12,D21]=COMPleib(system_model);
 
 B=B2; C=C2;
 D=zeros(size(C2,1),size(B2,2));
-
 
 %%%%%%%
 Ps = ss(A,B,C,D);
@@ -74,9 +55,9 @@ Y_L1 = value(Y);
 X00 = zeros(n,n);
 Y00 = zeros(n,n);
 % maximum number of iterations
-max_iter = 15;
+max_iter = 1e2;
 % stopping criterion
-EPS = 1e-20;
+EPS = 1e-6;
 
 %% Alternating Projetion by Grigoriadis and Skelton '96 (GS96)
 % parameters
@@ -85,7 +66,10 @@ Px = X0; Py = Y0;
 Qx = X0; Qy = Y0;
 
 res = [];
+res2= [];
 for k = 1:max_iter
+    fprintf('(GS96) k=%d\n',k);
+
     % projections for rank condition
     T = [X0,In;In,Y0];
     [U0,S0,V0] = svd(T);
@@ -94,30 +78,45 @@ for k = 1:max_iter
     X1 = U0(1:n,:)*S1*V0(1:n,:)';
     Y1 = U0(n+1:2*n,:)*S1*V0(n+1:2*n,:)';
     
-    Px = X0 + Px - X1;
-    Py = Y0 + Py - Y1;
+    X1_GS=X1; Y1_GS=Y1;
 
     res = [res,norm(X1*Y1-eye(n),'fro')];
     
     % feasibility check
     assign(X,X1,1); assign(Y,Y1,1);
-    g1 = min(eig(double(LMI1)));
-    g2 = min(eig(double(LMI2)));
-    g3 = min(eig(double(LMI3)));
-    if g1>0 & g2>0 & g3>0 & k>1 & abs(res(end)-res(end-1)) < EPS
+    g1 = min(eig(double(LMI1)))+epsil1;
+    g2 = min(eig(double(LMI2)))+epsil1;
+    g3 = min(eig(double(LMI3)))+epsil1;
+
+    if g1>0 & g2>0 & g3>0
+        fprintf('normal exit from iteration (after projection rank)\n');
         break;
     end
     
     % projection for LMIs
-    [X0,Y0] = Proj_LMI(X1+Qx,Y1+Qy,X,Y,LMI);
-    Qx = X1 + Qx - X0;
-    Qy = Y1 + Qy - Y0;
-    fprintf('(GS96) k=%d\n',k)
+    [X0,Y0] = Proj_LMI(X1,Y1,X,Y,LMI);
+    
+    X1_GS=X0; Y1_GS=Y0;
+
+    % feasibility check
+    assign(X,X0); assign(Y,Y0);
+    g1 = min(eig(double(LMI1)))+epsil1;
+    g2 = min(eig(double(LMI2)))+epsil1;
+    g3 = min(eig(double(LMI3)))+epsil1;
+
+    res2tmp=norm(X0*Y0-eye(n),'fro');
+    res2=[res2,res2tmp];
+
+    % rank check
+    if res2tmp<EPS
+      fprintf('normal exit from iteration (after projection LMI)\n');
+      break;
+    end
+
 end
 
-X1_GS = X1;
-Y1_GS = Y1;
 res_GS = res;
+res2_GS = res2;
 
 
 %% Iterative greedy LMI (proposed)
@@ -126,48 +125,80 @@ Px = X0; Py = Y0;
 Qx = X0; Qy = Y0;
 
 res = [];
+res2= [];
 for k = 1:max_iter
+    fprintf('(proposed) k=%d\n',k)
+
     % projection for rank condition
-    [X1,Y1] = Proj_rank(X0,Y0,n+nc);
-    Px = X0 + Px - X1;
-    Py = Y0 + Py - Y1;
-    
+    [X1,Y1] = Proj_rank(X0,Y0,n+nc);    
     res = [res,norm(X1*Y1-eye(n),'fro')];
     
+    X1_P=X1; Y1_P=Y1;
+
     % feasibility check
-    assign(X,X1,1); assign(Y,Y1,1);
-    g1 = min(eig(double(LMI1)));
-    g2 = min(eig(double(LMI2)));
-    g3 = min(eig(double(LMI3)));
-    if g1>0 & g2>0 & g3>0 & k>1 & abs(res(end)-res(end-1)) < EPS
+    assign(X,X1); assign(Y,Y1);
+    g1 = min(eig(double(LMI1)))+epsil1;
+    g2 = min(eig(double(LMI2)))+epsil1;
+    g3 = min(eig(double(LMI3)))+epsil1;
+
+    if g1>0 & g2>0 & g3>0
+        fprintf('normal exit from projection rank\n');
         break;
     end
     
     % projection for LMIs
-    [X0,Y0] = Proj_LMI(X1+Qx,Y1+Qy,X,Y,LMI);
-    Qx = X1 + Qx - X0;
-    Qy = Y1 + Qy - Y0;
-    fprintf('(proposed) k=%d\n',k)
+    [X0,Y0] = Proj_LMI(X1,Y1,X,Y,LMI);
+
+    X1_P=X0; Y1_P=Y0;
+
+    % feasibility check
+    assign(X,X0); assign(Y,Y0);
+    g1 = min(eig(double(LMI1)))+epsil1;
+    g2 = min(eig(double(LMI2)))+epsil1;
+    g3 = min(eig(double(LMI3)))+epsil1;
+    
+    res2tmp=norm(X0*Y0-eye(n),'fro');
+    res2=[res2,res2tmp];
+
+    % rank check
+    if res2tmp<EPS
+      fprintf('normal exit from iteration (after projection LMI)\n');
+      break;
+    end
+
 end
 
-X1_P = X1;
-Y1_P = Y1;
 res_P = res;
+res2_P = res2;
+
 
 %% Analysis
 % ||XY-I||
 figure;
-semilogy(1:max_iter,res,'o-');
+semilogy(1:max_iter,res,'-');
 hold on
-semilogy(1:max_iter,res_GS,'x--');
+semilogy(1:max_iter,res_GS,'-.');
 xlim([1,max_iter])
 xlabel('iteration number k')
 title("||XY-I||")
 grid on;
 
+figure;
+semilogy(1:max_iter,res2,'-');
+hold on
+semilogy(1:max_iter,res2_GS,'-.');
+xlim([1,max_iter])
+xlabel('iteration number k')
+title("||XY-I||")
+grid on;
+
+
+
 % Controller
 % nuclear norm
 [K1,Pcl1] = controller_realization(Ps,X_L1,Y_L1,nc);
+disp('Residual (nuclear norm minimization)')
+norm(X_L1*Y_L1-eye(n),'fro')
 disp('Controller (nuclear norm minimization)')
 K1
 disp('Poles (nuclear norm minimization)')
@@ -175,6 +206,8 @@ pole(Pcl1)
 
 % GS96
 [K2,Pcl2] = controller_realization(Ps,X1_GS,Y1_GS,nc);
+disp('Residual (GS96)')
+norm(X1_GS*Y1_GS-eye(n),'fro')
 disp('Controller (GS96)')
 K2
 disp('Poles (GS96)')
@@ -182,6 +215,8 @@ pole(Pcl2)
 
 % Proposed method
 [K3,Pcl3] = controller_realization(Ps,X1_P,Y1_P,nc);
+disp('Residual (proposed)')
+norm(X1_P*Y1_P-eye(n),'fro')
 disp('Controller (proposed)')
 K3
 disp('Poles (proposed)')
