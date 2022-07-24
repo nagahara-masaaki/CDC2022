@@ -74,7 +74,7 @@ max_iter = 15;
 % stopping criterion
 EPS = 1e-8;
 
-%% Iterative greedy LMI (proposed)
+%% Alternating projection (proposed)
 X0 = X00; Y0 = Y00;
 Px = X0; Py = Y0;
 Qx = X0; Qy = Y0;
