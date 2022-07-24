@@ -17,3 +17,6 @@ You need to install Yalmip, SeDuMi, and COMPLeib to run the main program.
 - Yalmip can be downloaded from [https://yalmip.github.io/](https://yalmip.github.io/)
 - SeDuMi can be downloaded from [https://sedumi.ie.lehigh.edu/](https://sedumi.ie.lehigh.edu/)
 - COMPLeib can be downloaded from [http://www.complib.de/](http://www.complib.de/)
+## Results of stability tests for 95 bemchmark models
+The results of stability tests for 95 benchmark models are shown in the following exel file:
+- `stability_data.xlsx`
