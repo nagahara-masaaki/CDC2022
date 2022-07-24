@@ -1,5 +1,5 @@
 %% MATLAB program for the numerical example in 
-%% Nagahara and Sebe, CDC 2022
+%% Nagahara, Iwata, and Sebe, Algorithms 2022
 %% H-inf optimal static controller by bisection search
 
 %% Initialization
