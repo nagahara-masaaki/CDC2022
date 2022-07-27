@@ -2,9 +2,6 @@ function [Xopt,Yopt,info] = Proj_LMI_4(X0,Y0,X,Y,LMI1)
 
 ops=sdpsettings;
 ops=sdpsettings(ops,'verbose',0);
-%Fsolver='sdpt3';
-Fsolver='sedumi';
-%Fsolver='mosek';
 
 [mx,nx] = size(X0);
 [my,ny] = size(Y0);
