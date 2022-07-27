@@ -5,9 +5,6 @@
 %% Initialization
 clear;
 ops=sdpsettings;
-Fsolver='sdpt3';
-%Fsolver='sedumi';
-Fsolver='mosek';
 
 %% Syste matrices
 % COMPleib benchmark
