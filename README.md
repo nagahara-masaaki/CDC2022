@@ -1,17 +1,15 @@
-# Matlab programs
-We provide Matlab programs to check the numerical examples of model reduction (MR) shown in
+# Matlab programs for reduced-order controller design
+We provide Matlab programs to check the numerical examples of model reduction (MR) shown in Sections 4.1 and 4.2 of
 - M. Nagahara, Y. Iwai, and N. Sebe, Projection onto the Set of Rank-constrained Structured Matrices for Reduced-order Controller Design, submitted to Algorithms, 2022.
 
-## Main program
-The main programs are `reduced_order_controller_stability.m` (for Section 4.1) and `reduced_order_controller_hinf_bisection.m` (for Section 4.2).
-## Subprograms
+## Matlab programs
 You need to place the following m-files in the same folder of the main programs.
-- `reduced_order_controller_stability.m` (for Section 4.1)
-- `reduced_order_controller_hinf_bisection.m` (for Section 4.2)
-- `Proj_LMI.m`
-- `Proj_rank.m`
-- `retrieve_eliminated.m`
-- `s_sparse_operator.m`
+- `reduced_order_controller_stability.m` (main program for Section 4.1)
+- `reduced_order_controller_hinf_bisection.m` (main program for Section 4.2)
+- `Proj_LMI.m` (projection operator for the LMIs)
+- `Proj_rank.m` (projection operator for the rank condition)
+- `retrieve_eliminated.m` 
+- `s_sparse_operator.m` (s-sparse operator for truncation)
 ## Requirements
 To run `hinfstruct` for nonsmooth H-infinity synthesis, you need [Robust Control Toolbox](https://jp.mathworks.com/products/robust.html).
 You also need to install Yalmip, SDPT3, SeDuMi, and COMPLeib to run the main program.
