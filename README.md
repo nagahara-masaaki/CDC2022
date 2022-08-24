@@ -8,7 +8,8 @@ You need to place the following m-files in the same folder of the main programs.
 - `reduced_order_controller_hinf_bisection.m` (main program for Section 4.2)
 - `Proj_LMI.m` (projection operator for the LMIs)
 - `Proj_rank.m` (projection operator for the rank condition)
-- `retrieve_eliminated.m` 
+- `controller_realization.m` (controller realization from X and Y)
+- `retrieve_eliminated.m` (used in `controller_realization.m`)
 - `s_sparse_operator.m` (s-sparse operator for truncation)
 ## Requirements
 To run `hinfstruct` for nonsmooth H-infinity synthesis, you need [Robust Control Toolbox](https://jp.mathworks.com/products/robust.html).
