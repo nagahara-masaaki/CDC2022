@@ -13,7 +13,7 @@ You need to place the following m-files in the same folder of the main programs.
 - `retrieve_eliminated.m`
 - `s_sparse_operator.m`
 ## Requirements
-To run `hinfstruct` for nonsmooth H-infinity synthesis, you need [Robust Control Toolbox](https://jp.mathworks.com/products/robust.html)
+To run `hinfstruct` for nonsmooth H-infinity synthesis, you need [Robust Control Toolbox](https://jp.mathworks.com/products/robust.html).
 You also need to install Yalmip, SDPT3, SeDuMi, and COMPLeib to run the main program.
 - Yalmip can be downloaded from [https://yalmip.github.io/](https://yalmip.github.io/)
 - SDPT3 can be downloaded from [https://github.com/SQLP/SDPT3](https://github.com/SQLP/SDPT3)
