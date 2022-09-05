@@ -4,8 +4,8 @@ We provide Matlab programs to check the numerical examples of model reduction (M
 
 ## Matlab programs
 You need to place the following m-files in the same folder of the main programs.
-- `reduced_order_controller_stability.m` (main program for Section 4.1)
-- `reduced_order_controller_hinf_bisection.m` (main program for Section 4.2)
+- `reduced_order_controller_stability.m` (main program for Sections 4.1 and 4.2)
+- `reduced_order_controller_hinf_bisection.m` (main program for Section 4.3)
 - `Proj_LMI.m` (projection operator for the LMIs)
 - `Proj_rank.m` (projection operator for the rank condition)
 - `controller_realization.m` (controller realization from X and Y)
